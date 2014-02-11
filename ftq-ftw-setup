@@ -13,7 +13,7 @@ DL="$BASE_D/dl"
 mkdir -p "$DL"
 
 ## downloads
-curl "$tar_url" > "$DL/${tarball}.tmp"
+curl "$TAR_URL" > "$DL/${tarball}.tmp"
 mv "${DL}/${tarball}.tmp" "${DL}/${tarball}"
 
 ## build
