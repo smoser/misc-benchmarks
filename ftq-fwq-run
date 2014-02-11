@@ -34,5 +34,5 @@ run fwq -o "${outd}/fwq-${bits_int}-$N" -w "$bits_int"
 nthreads=$(($threads*$cores*$sockets))
 [ "$nthreads" == "1" ] && nthreads=2
 
-run t_ftq -o "${outd}/t_ftq-${bits_int}-$N-$nthreads" -i "$bits_int"
-run t_fwq -o "${outd}/t_fwq-${bits_int}-$N-$nthreads" -w "$bits_int"
+run t_ftq -o "${outd}/t_ftq-${bits_int}-$N-$nthreads" -t $nthreads -i "$bits_int"
+run t_fwq -o "${outd}/t_fwq-${bits_int}-$N-$nthreads" -t $nthreads -w "$bits_int"
