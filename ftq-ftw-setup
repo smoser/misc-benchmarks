@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+## https://asc.llnl.gov/sequoia/benchmarks/
+##  https://asc.llnl.gov/sequoia/benchmarks/FTQ_summary_v1.1.pdf
+TAR_URL="https://asc.llnl.gov/sequoia/benchmarks/ftq_v1.1.tar"
+BASE_D="$PWD"
+
+yum install --assumeyes gcc make glibc-devel glibc-static bc
+
+tarball="${TAR_URL##*/}"
+DL="$BASE_D/dl"
+mkdir -p "$DL"
+
+## downloads
+curl "$tar_url" > "$DL/${tarball}.tmp"
+mv "${DL}/${tarball}.tmp" "${DL}/${tarball}"
+
+## build
+cd "$BASE_D"
+tar -xvf "$DL/${tarball}"
+( cd ftqV110/ftq && make all )
