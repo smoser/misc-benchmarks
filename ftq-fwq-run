@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for p in . ./ftqV110 ./ftq; do
+for p in . ./ftqV110/ftq ./ftq; do
    [ -x "$p/ftq" -a -f "$p/fwq" ] && FTQ_D="$p" && break
 done
 [ -n "$FTQ_D" ] || { echo "need to set FTQ_D"; exit 1; }
@@ -11,13 +11,13 @@ bits_full=$(echo "l(0.001*$mhz*10^6/380)/l(2)" | bc -l)
 bits_int=$(echo "$bits_full" | awk '{printf("%d\n", $1 + 0.5)}')
 
 out_d="$1"
-threads=$(awk '$0 ~ /^Thread.* per core/ { print $4 }')
-cores=$(awk '$0 ~ /^Core.* per socket/ { print $4 }')
-sockets=$(awk '$0 ~ /^Socket.*/ { print $2 }')
+lscpu > lscpu
+threads=$(awk '$0 ~ /^Thread.* per core/ { print $4 }' lscpu)
+cores=$(awk '$0 ~ /^Core.* per socket/ { print $4 }' lscpu)
+sockets=$(awk '$0 ~ /^Socket.*/ { print $2 }' lscpu)
 echo "mhz=%s threads=%s cores=%s sockets=%s bits=%s" \
    "$mhz" "$threads" "$cores" "$sockets" "$bits_int" > info
 cat /proc/cpuinfo > cpuinfo
-lscpu > lscpu
 
 run() {
    echo "$@" 1>&2
