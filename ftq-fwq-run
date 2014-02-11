@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for p in . ./ftqV110 ./ftq; do
-   [ -x "$p/ftq" -a -f "$p/ftw" ] && FTQ_D="$p" && break
+   [ -x "$p/ftq" -a -f "$p/fwq" ] && FTQ_D="$p" && break
 done
 [ -n "$FTQ_D" ] || { echo "need to set FTQ_D"; exit 1; }
 
