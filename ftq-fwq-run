@@ -28,7 +28,7 @@ run() {
 
 PATH=$FTQ_D:$PATH
 
-cat info
+cat "$outd/info"
 run ftq -o "${outd}/ftq-${bits_int}-$N" -i "$bits_int"
 run fwq -o "${outd}/fwq-${bits_int}-$N" -w "$bits_int"
 nthreads=$(($threads*$cores*$sockets))
