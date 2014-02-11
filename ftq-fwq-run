@@ -5,19 +5,21 @@ for p in . ./ftqV110/ftq ./ftq; do
 done
 [ -n "$FTQ_D" ] || { echo "need to set FTQ_D"; exit 1; }
 
-N="${1:-10000}"
+outd="${1:-out.d}"
+N="${2:-10000}"
 mhz=$(awk '$0 ~ /cpu MHz/ { print $4 }' /proc/cpuinfo )
 bits_full=$(echo "l(0.001*$mhz*10^6/380)/l(2)" | bc -l)
 bits_int=$(echo "$bits_full" | awk '{printf("%d\n", $1 + 0.5)}')
 
 out_d="$1"
-lscpu > lscpu
-threads=$(awk '$0 ~ /^Thread.* per core/ { print $4 }' lscpu)
-cores=$(awk '$0 ~ /^Core.* per socket/ { print $4 }' lscpu)
-sockets=$(awk '$0 ~ /^Socket.*/ { print $2 }' lscpu)
-echo "mhz=%s threads=%s cores=%s sockets=%s bits=%s" \
-   "$mhz" "$threads" "$cores" "$sockets" "$bits_int" > info
-cat /proc/cpuinfo > cpuinfo
+mkdir -p "$outd"
+lscpu > "$outd/lscpu"
+threads=$(awk '$0 ~ /^Thread.* per core/ { print $4 }' "$outd/lscpu")
+cores=$(awk '$0 ~ /^Core.* per socket/ { print $4 }' "$outd/lscpu")
+sockets=$(awk '$0 ~ /^Socket.*/ { print $2 }' "$outd/lscpu")
+printf "mhz=%s threads=%s cores=%s sockets=%s bits=%s\n" \
+   "$mhz" "$threads" "$cores" "$sockets" "$bits_int" > "$outd/info"
+cat /proc/cpuinfo > "${outd}/cpuinfo"
 
 run() {
    echo "$@" 1>&2
@@ -26,10 +28,11 @@ run() {
 
 PATH=$FTQ_D:$PATH
 
-run ftq -o "ftq-${bits_int}-$N" -i "$bits_int"
-run fwq -o "fwq-${bits_int}-$N" -w "$bits_int"
+cat info
+run ftq -o "${outd}/ftq-${bits_int}-$N" -i "$bits_int"
+run fwq -o "${outd}/fwq-${bits_int}-$N" -w "$bits_int"
 nthreads=$(($threads*$cores*$sockets))
 [ "$nthreads" == "1" ] && nthreads=2
 
-run t_ftq -o "t_ftq-${bits_int}-$N-$nthreads" -i "$bits_int"
-run t_fwq -o "t_fwq-${bits_int}-$N-$nthreads" -w "$bits_int"
+run t_ftq -o "${outd}/t_ftq-${bits_int}-$N-$nthreads" -i "$bits_int"
+run t_fwq -o "${outd}/t_fwq-${bits_int}-$N-$nthreads" -w "$bits_int"
