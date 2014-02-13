@@ -6,7 +6,7 @@ done
 [ -n "$FTQ_D" ] || { echo "need to set FTQ_D"; exit 1; }
 
 outd="${1:-out.d}"
-N="${2:-10000}"
+N="${2:-2000000}"
 mhz=$(awk '$0 ~ /cpu MHz/ { print $4; exit(0); }' /proc/cpuinfo )
 bits_full=$(echo "l(0.001*$mhz*10^6/380)/l(2)" | bc -l)
 bits_floor=${bits_full%.*}
