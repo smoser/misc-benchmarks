@@ -22,8 +22,12 @@ printf "mhz=%s threads=%s cores=%s sockets=%s bits=%s\n" \
 cat /proc/cpuinfo > "${outd}/cpuinfo"
 
 run() {
+   local st=${SECONDS} ret=0
    echo "$@" 1>&2
    "$@"
+   ret=$?
+   echo "$ret: [$(($SECONDS-$st))s]"
+   return $ret
 }
 
 PATH=$FTQ_D:$PATH
@@ -32,6 +36,7 @@ nthreads=$(($threads*$cores*$sockets))
 [ "$nthreads" == "1" ] && nthreads=2
 
 cat "$outd/info"
+sstart=${SECONDS}
 for bits in ${bits_floor} $((${bits_floor}+1)); do
 	run ftq -o "${outd}/ftq-$bits-$N" -i "$bits" -n "$N"
 	run fwq -o "${outd}/fwq-$bits-$N" -w "$bits" -n "$N"
@@ -39,3 +44,5 @@ for bits in ${bits_floor} $((${bits_floor}+1)); do
 	run t_ftq -o "${outd}/t_ftq-$bits-$N-$nthreads" -t $nthreads -i "$bits" -n "$N"
 	run t_fwq -o "${outd}/t_fwq-$bits-$N-$nthreads" -t $nthreads -w "$bits" -n "$N"
 done
+end=${SECONDS}
+echo "took $(($end-$sstart))s"
