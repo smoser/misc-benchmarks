@@ -9,7 +9,7 @@ outd="${1:-out.d}"
 N="${2:-10000}"
 mhz=$(awk '$0 ~ /cpu MHz/ { print $4; exit(0); }' /proc/cpuinfo )
 bits_full=$(echo "l(0.001*$mhz*10^6/380)/l(2)" | bc -l)
-bits_int=$(echo "$bits_full" | awk '{printf("%d\n", $1 + 0.5)}')
+bits_floor=${bits_full%.*}
 
 out_d="$1"
 mkdir -p "$outd"
@@ -18,7 +18,7 @@ threads=$(awk '$0 ~ /^Thread.* per core/ { print $4 }' "$outd/lscpu")
 cores=$(awk '$0 ~ /^Core.* per socket/ { print $4 }' "$outd/lscpu")
 sockets=$(awk '$0 ~ /^Socket.*/ { print $2 }' "$outd/lscpu")
 printf "mhz=%s threads=%s cores=%s sockets=%s bits=%s\n" \
-   "$mhz" "$threads" "$cores" "$sockets" "$bits_int" > "$outd/info"
+   "$mhz" "$threads" "$cores" "$sockets" "$bits_full" > "$outd/info"
 cat /proc/cpuinfo > "${outd}/cpuinfo"
 
 run() {
@@ -28,11 +28,14 @@ run() {
 
 PATH=$FTQ_D:$PATH
 
-cat "$outd/info"
-run ftq -o "${outd}/ftq-${bits_int}-$N" -i "$bits_int" -n "$N"
-run fwq -o "${outd}/fwq-${bits_int}-$N" -w "$bits_int" -n "$N"
 nthreads=$(($threads*$cores*$sockets))
 [ "$nthreads" == "1" ] && nthreads=2
 
-run t_ftq -o "${outd}/t_ftq-${bits_int}-$N-$nthreads" -t $nthreads -i "$bits_int" -n "$N"
-run t_fwq -o "${outd}/t_fwq-${bits_int}-$N-$nthreads" -t $nthreads -w "$bits_int" -n "$N"
+cat "$outd/info"
+for bits in ${bits_floor} $((${bits_floor}+1)); do
+	run ftq -o "${outd}/ftq-$bits-$N" -i "$bits" -n "$N"
+	run fwq -o "${outd}/fwq-$bits-$N" -w "$bits" -n "$N"
+
+	run t_ftq -o "${outd}/t_ftq-$bits-$N-$nthreads" -t $nthreads -i "$bits" -n "$N"
+	run t_fwq -o "${outd}/t_fwq-$bits-$N-$nthreads" -t $nthreads -w "$bits" -n "$N"
+done
