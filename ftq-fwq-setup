@@ -9,7 +9,7 @@ BASE_D="$PWD"
 if command -v apt-get >/dev/null 2>&1; then
        sudo apt-get install --assume-yes --quiet
 else
-       yum install --assumeyes gcc make glibc-devel glibc-static bc
+       yum install --assumeyes gcc make glibc-devel glibc-static bc tar
 fi
 
 tarball="${TAR_URL##*/}"
