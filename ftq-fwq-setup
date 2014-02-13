@@ -6,7 +6,11 @@ set -e
 TAR_URL="https://asc.llnl.gov/sequoia/benchmarks/ftq_v1.1.tar"
 BASE_D="$PWD"
 
-yum install --assumeyes gcc make glibc-devel glibc-static bc
+if command -v apt-get >/dev/null 2>&1; then
+       sudo apt-get install --assume-yes --quiet
+else
+       yum install --assumeyes gcc make glibc-devel glibc-static bc
+fi
 
 tarball="${TAR_URL##*/}"
 DL="$BASE_D/dl"
