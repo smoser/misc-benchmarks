@@ -6,7 +6,7 @@ done
 [ -n "$FTQ_D" ] || { echo "need to set FTQ_D"; exit 1; }
 
 outd="${1:-out.d}"
-N="${2:-2000000}"
+SAMPLES="${2:-2000000}"
 mhz=$(awk '$0 ~ /cpu MHz/ { print $4; exit(0); }' /proc/cpuinfo )
 bits_full=$(echo "l(0.001*$mhz*10^6/380)/l(2)" | bc -l)
 bits_floor=${bits_full%.*}
@@ -33,11 +33,11 @@ run() {
    local st=${SECONDS} ret=0 bflag="-w"
    local prog="$1" outd="$2" bits="$3" n="$4" threads="$5" cmd=""
    cmd=( )
-   pre="$outd/${prog}-$bits-$N${threads:+-${threads}}/run"
+   pre="$outd/${prog}-$bits-$n${threads:+-${threads}}/run"
    case "$prog" in
       ftq|tftq) bflag="-i";;
    esac
-   cmd=( "$prog" -o "$pre" "$bflag" "$bits" -n "$N"
+   cmd=( "$prog" -o "$pre" "$bflag" "$bits" -n "$n"
          ${threads:+-n ${threads}} )
    mkdir -p "${pre%/*}"
    echo "${cmd[@]}" 1>&2
@@ -55,10 +55,10 @@ nthreads=$(($threads*$cores*$sockets))
 cat "$outd/info"
 sstart=${SECONDS}
 for bits in ${bits_floor} $((${bits_floor}+1)); do
-   run ftq "$outd" "$bits" "$N"
-   run fwq "$outd" "$bits" "$N"
-   run t_fwq "$outd" "$bits" "$N" "$nthreads"
-   run t_fwq "$outd" "$bits" "$N" "$nthreads"
+   run ftq "$outd" "$bits" "$SAMPLES"
+   run fwq "$outd" "$bits" "$SAMPLES"
+   run t_fwq "$outd" "$bits" "$SAMPLES" "$nthreads"
+   run t_fwq "$outd" "$bits" "$SAMPLES" "$nthreads"
 done
 end=${SECONDS}
 echo "took $(($end-$sstart))s"
