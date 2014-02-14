@@ -20,6 +20,8 @@ sockets=$(awk '$0 ~ /^Socket.*/ { print $2 }' "$outd/lscpu")
 printf "mhz=%s threads=%s cores=%s sockets=%s bits=%s\n" \
    "$mhz" "$threads" "$cores" "$sockets" "$bits_full" > "$outd/info"
 printf "%s\n" "kernel=$(uname -r)" >> "$outd/info"
+read enabled < /proc/sys/kernel/sched_autogroup_enabled
+echo "sched_autogroup_enabled=$enabled" >> "$outd/info"
 if [ -f /etc/redhat-release ]; then
    echo "release=$(cat /etc/redhat-release)" >> "$outd/info"
 else
