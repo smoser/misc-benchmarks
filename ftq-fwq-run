@@ -19,12 +19,27 @@ cores=$(awk '$0 ~ /^Core.* per socket/ { print $4 }' "$outd/lscpu")
 sockets=$(awk '$0 ~ /^Socket.*/ { print $2 }' "$outd/lscpu")
 printf "mhz=%s threads=%s cores=%s sockets=%s bits=%s\n" \
    "$mhz" "$threads" "$cores" "$sockets" "$bits_full" > "$outd/info"
+printf "%s\n" "kernel=$(uname -r)" >> "$outd/info"
+if [ -f /etc/redhat-release ]; then
+   echo "release=$(cat /etc/redhat-release)" >> "$outd/info"
+else
+   echo "release=$(lsb_release -sc)" >> "$outd/info"
+fi
 cat /proc/cpuinfo > "${outd}/cpuinfo"
 
 run() {
-   local st=${SECONDS} ret=0
-   echo "$@" 1>&2
-   "$@"
+   local st=${SECONDS} ret=0 bflag="-w"
+   local prog="$1" outd="$2" bits="$3" n="$4" threads="$5" cmd=""
+   cmd=( )
+   pre="$outd/${prog}-$bits-$N${threads:+-${threads}}/run"
+   case "$prog" in
+      ftq|tftq) bflag="-i";;
+   esac
+   cmd=( "$prog" -o "$pre" "$bflag" "$bits" -n "$N"
+         ${threads:+-n ${threads}} )
+   mkdir -p "${pre%/*}"
+   echo "${cmd[@]}" 1>&2
+   "${cmd[@]}"
    ret=$?
    echo "$ret: [$(($SECONDS-$st))s]"
    return $ret
@@ -38,11 +53,10 @@ nthreads=$(($threads*$cores*$sockets))
 cat "$outd/info"
 sstart=${SECONDS}
 for bits in ${bits_floor} $((${bits_floor}+1)); do
-	run ftq -o "${outd}/ftq-$bits-$N" -i "$bits" -n "$N"
-	run fwq -o "${outd}/fwq-$bits-$N" -w "$bits" -n "$N"
-
-	run t_ftq -o "${outd}/t_ftq-$bits-$N-$nthreads" -t $nthreads -i "$bits" -n "$N"
-	run t_fwq -o "${outd}/t_fwq-$bits-$N-$nthreads" -t $nthreads -w "$bits" -n "$N"
+   run ftq "$outd" "$bits" "$N"
+   run fwq "$outd" "$bits" "$N"
+   run t_fwq "$outd" "$bits" "$N" "$nthreads"
+   run t_fwq "$outd" "$bits" "$N" "$nthreads"
 done
 end=${SECONDS}
 echo "took $(($end-$sstart))s"
