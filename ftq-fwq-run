@@ -35,7 +35,7 @@ run() {
    cmd=( )
    pre="$outd/${prog}-$bits-$n${threads:+-${threads}}/run"
    case "$prog" in
-      ftq|tftq) bflag="-i";;
+      ftq|t_ftq) bflag="-i";;
    esac
    cmd=( "$prog" -o "$pre" "$bflag" "$bits" -n "$n" )
    case "$prog" in
