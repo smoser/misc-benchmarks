@@ -7,7 +7,7 @@ TAR_URL="https://asc.llnl.gov/sequoia/benchmarks/ftq_v1.1.tar"
 BASE_D="$PWD"
 
 if command -v apt-get >/dev/null 2>&1; then
-       sudo apt-get install --assume-yes --quiet
+       sudo apt-get install --assume-yes --quiet curl make gcc
 else
        yum install --assumeyes gcc make glibc-devel glibc-static bc tar
 fi
