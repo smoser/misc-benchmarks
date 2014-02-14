@@ -59,7 +59,7 @@ sstart=${SECONDS}
 for bits in ${bits_floor} $((${bits_floor}+1)); do
    run ftq "$outd" "$bits" "$SAMPLES"
    run fwq "$outd" "$bits" "$SAMPLES"
-   run t_fwq "$outd" "$bits" "$SAMPLES" "$nthreads"
+   run t_ftq "$outd" "$bits" "$SAMPLES" "$nthreads"
    run t_fwq "$outd" "$bits" "$SAMPLES" "$nthreads"
 done
 end=${SECONDS}
