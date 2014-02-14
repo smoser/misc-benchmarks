@@ -37,8 +37,10 @@ run() {
    case "$prog" in
       ftq|tftq) bflag="-i";;
    esac
-   cmd=( "$prog" -o "$pre" "$bflag" "$bits" -n "$n"
-         ${threads:+-n ${threads}} )
+   cmd=( "$prog" -o "$pre" "$bflag" "$bits" -n "$n" )
+   case "$prog" in
+      t_*) cmd=( "${cmd[@]}" -t "$threads" );;
+   esac
    mkdir -p "${pre%/*}"
    echo "${cmd[@]}" 1>&2
    "${cmd[@]}"
