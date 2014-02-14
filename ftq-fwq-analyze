@@ -1,0 +1,28 @@
+#!/bin/bash
+
+cleanup() { [ ! -d "${TEMP_D}" ] || rm -Rf "$TEMP_D"; }
+
+TEMP_D=$(mktemp -d)
+trap cleanup EXIT
+octdir="$1"
+shift
+[ -d "$octdir" ] || { echo "$octdir: not a directory"; exit 1; }
+[ -f "$octdir/analyze.m" ] ||
+   { echo "$octdir: does not have analyize"; exit 1; }
+octdir=$(cd "$octdir" && pwd)
+
+for d in "$@"; do
+   [ -d "$d" ] || { echo "skipping non-directory $d"; continue; }
+   cat > "${TEMP_D}/script" <<EOF
+cd $d
+addpath('$octdir')
+d=dir('run_*_times.dat')
+[data,xb,sd,k]=analyze('.',d);
+EOF
+#plotter(data,xb,sd,k,1,100)
+   echo "$(date -R): $d"
+   octave "${TEMP_D}/script" > "$d/octave.out" ||
+      { echo "$d failed"; exit 1; }
+done
+
+exit
