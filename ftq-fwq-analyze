@@ -13,11 +13,17 @@ octdir=$(cd "$octdir" && pwd)
 
 for d in "$@"; do
    [ -d "$d" ] || { echo "skipping non-directory $d"; continue; }
+   bd=$(cd "$d" && pwd)
+   bd=${bd##*/}
+   case "$bd" in
+      *ftq*) anafunc="analyze";;
+      *fqw*) anafunc="wanalyze";;
+   esac
    cat > "${TEMP_D}/script" <<EOF
 cd $d
 addpath('$octdir')
 d=dir('run_*_times.dat')
-[data,xb,sd,k]=analyze('.',d);
+[data,xb,sd,k]=$anafunc('.',d);
 EOF
 #plotter(data,xb,sd,k,1,100)
    echo "$(date -R): $d"
