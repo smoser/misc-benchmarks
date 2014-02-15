@@ -17,7 +17,7 @@ for d in "$@"; do
    bd=${bd##*/}
    case "$bd" in
       *ftq*) anafunc="analyze";;
-      *fqw*) anafunc="wanalyze";;
+      *fwq*) anafunc="wanalyze";;
    esac
    cat > "${TEMP_D}/script" <<EOF
 cd $d
