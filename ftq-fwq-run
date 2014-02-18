@@ -30,7 +30,7 @@ fi
 cat /proc/cpuinfo > "${outd}/cpuinfo"
 
 run() {
-   local st=${SECONDS} ret=0 bflag="-w"
+   local st="" ret=0 bflag="-w"
    local prog="$1" outd="$2" bits="$3" n="$4" threads="$5" cmd=""
    cmd=( )
    pre="$outd/${prog}-$bits-$n${threads:+-${threads}}/run"
@@ -42,10 +42,13 @@ run() {
       t_*) cmd=( "${cmd[@]}" -t "$threads" );;
    esac
    mkdir -p "${pre%/*}"
-   echo "${cmd[@]}" 1>&2
+   echo "${cmd[@]}"
+   echo "${cmd[@]}" >> "$outd/times.txt"
+   st=${SECONDS}
    "${cmd[@]}"
    ret=$?
    echo "$ret: [$(($SECONDS-$st))s]"
+   echo "$ret: [$(($SECONDS-$st))s]" >> "$outd/times.txt"
    return $ret
 }
 
