@@ -67,3 +67,4 @@ for bits in ${bits_floor} $((${bits_floor}+1)); do
 done
 end=${SECONDS}
 echo "took $(($end-$sstart))s"
+echo "took $(($end-$sstart))s" >> "$outd/times.txt"
