@@ -7,7 +7,13 @@ done
 
 outd="${1:-out.d}"
 SAMPLES="${2:-2000000}"
-mhz=$(awk '$0 ~ /cpu MHz/ { print $4; exit(0); }' /proc/cpuinfo )
+
+# get max mhz of cpu.
+mfreq_path="/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
+[ -f "$mfreq_path" -a -r "$mfreq_path" ] &&
+   read mhz < "$mfreq_path" ||
+   mhz=$(awk '$0 ~ /cpu MHz/ { print $4; exit(0); }' /proc/cpuinfo )
+
 bits_full=$(echo "l(0.001*$mhz*10^6/380)/l(2)" | bc -l)
 bits_floor=${bits_full%.*}
 
