@@ -16,17 +16,21 @@ for d in "$@"; do
    bd=$(cd "$d" && pwd)
    bd=${bd##*/}
    case "$bd" in
-      *ftq*) anafunc="analyze";;
-      *fwq*) anafunc="wanalyze";;
+      *ftq*)
+         anafunc="analyze";
+         anafiles="run_*_times.dat";;
+      *fwq*)
+         anafunc="wanalyze";
+         anafiles="run_*_counts.dat";;
    esac
    cat > "${TEMP_D}/script" <<EOF
 cd $d
 addpath('$octdir')
-d=dir('run_*_times.dat')
+d=dir('$anafiles')
 [data,xb,sd,k]=$anafunc('.',d);
 EOF
 #plotter(data,xb,sd,k,1,100)
-   echo "$(date -R): $d [$anafunc]"
+   echo "$(date -R): $d [$anafunc/$anafiles]"
    octave "${TEMP_D}/script" > "$d/octave.out" ||
       { echo "$d failed"; exit 1; }
 done
