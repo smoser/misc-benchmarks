@@ -1,0 +1,43 @@
+#!/bin/bash
+
+TEMP_D=""
+MP=""
+
+myd=$(dirname "$0") && myd=$(cd "$myd" && pwd)
+
+error() { echo "$@" 1>&2; }
+fail() { [ $# -eq 0 ] || error "$@"; exit 1; }
+
+asroot() {
+	local id sudo=""
+	id=$(id -u) || { echo "failed to get id 1>&2"; return 1; }
+
+	[ "${id}" != "0" ] && sudo=sudo
+	${sudo} -- "$@"
+}
+
+cleanup() {
+   [ -z "$MP" ] || { error "unmounting $MP"; asroot umount "$MP"; }
+   [ -z "$TEMP_D" ] || rm -Rf "$TEMP_D"
+}
+
+outd="${1:-out.d}"
+shift
+
+TEMP_D=$(mktemp -d "${TMPDIR:-/tmp}/${0##*/}.XXXXXX") ||
+   fail "failed to make tmpdir"
+trap cleanup EXIT
+
+mp="$TEMP_D/mp"
+mkdir "$mp" || fail "failed to make mountpoint"
+
+[ -d "$outd" ] || mkdir "$outd" || fail "failed to make $outd"
+
+asroot mount -t tmpfs tmpfs "$mp" ||
+   fail "failed to mount tmpfs to $mp"
+MP="$mp"
+
+"$myd/ftq-fwq-run" "$MP" "$@" || exit
+rsync -a "$MP/"* "$outd/" || fail "failed to rsync"
+
+exit 0
