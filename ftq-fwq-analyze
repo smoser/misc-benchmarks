@@ -18,10 +18,10 @@ for d in "$@"; do
    case "$bd" in
       *ftq*)
          anafunc="analyze";
-         anafiles="run_*_times.dat";;
+         anafiles="run_*_counts.dat";;
       *fwq*)
          anafunc="wanalyze";
-         anafiles="run_*_counts.dat";;
+         anafiles="run_*_times.dat";;
    esac
    cat > "${TEMP_D}/script" <<EOF
 cd $d
