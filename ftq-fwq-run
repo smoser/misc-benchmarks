@@ -1,8 +1,16 @@
 #!/bin/bash
 
-for p in . ./ftqV110/ftq ./ftq; do
-   [ -x "$p/ftq" -a -f "$p/fwq" ] && FTQ_D="$p" && break
-done
+if [ -z "$FTQ_D" ]; then
+   myd=$(dirname "$0")
+   myd=$(cd "$myd" && pwd)
+   if [ -d "$myd/static/$(uname -m)" ]; then
+      FTQ_D="$myd/static/$(uname -m)"
+   else
+      for p in . ./ftqV110/ftq ./ftq; do
+         [ -x "$p/ftq" -a -f "$p/fwq" ] && FTQ_D="$p" && break
+      done
+   fi
+fi
 [ -n "$FTQ_D" ] || { echo "need to set FTQ_D"; exit 1; }
 
 outd="${1:-out.d}"
