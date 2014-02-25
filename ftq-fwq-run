@@ -44,7 +44,7 @@ fi
 cat /proc/cpuinfo > "${outd}/cpuinfo"
 
 run() {
-   local st="" ret=0 bflag="-w"
+   local st="" end="" n="" ret=0 bflag="-w"
    local prog="$1" outd="$2" bits="$3" n="$4" threads="$5" cmd=""
    cmd=( )
    pre="$outd/${prog}-$bits-$n${threads:+-${threads}}/run"
@@ -56,13 +56,16 @@ run() {
       t_*) cmd=( "${cmd[@]}" -t "$threads" );;
    esac
    mkdir -p "${pre%/*}"
-   echo "${cmd[@]}"
-   echo "${cmd[@]}" >> "$outd/times.txt"
+   n="$(date -R)"
+   printf "%s\n" "$n: ${cmd[*]}"
+   printf "%s\n" "$n: ${cmd[*]}" >> "$outd/times.txt"
    st=${SECONDS}
-   "${cmd[@]}"
+   /usr/bin/time "${cmd[@]}"
    ret=$?
-   echo "$ret: [$(($SECONDS-$st))s]"
-   echo "$ret: [$(($SECONDS-$st))s]" >> "$outd/times.txt"
+   end=${SECONDS}
+   n="$(date -R)"
+   printf "%s\n" "$ret: [$(($end-$st))s]"
+   printf "%s\n" "$ret: [$(($end-$st))s]" >> "$outd/times.txt"
    return $ret
 }
 
