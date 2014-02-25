@@ -13,7 +13,7 @@ asroot() {
 	id=$(id -u) || { echo "failed to get id 1>&2"; return 1; }
 
 	[ "${id}" != "0" ] && sudo=sudo
-	${sudo} -- "$@"
+	${sudo:-${sudo} --} "$@"
 }
 
 cleanup() {
