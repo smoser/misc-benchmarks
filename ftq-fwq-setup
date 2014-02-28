@@ -7,9 +7,9 @@ TAR_URL="https://asc.llnl.gov/sequoia/benchmarks/ftq_v1.1.tar"
 BASE_D="$PWD"
 
 if command -v apt-get >/dev/null 2>&1; then
-       sudo apt-get install --assume-yes --quiet curl make gcc bc
+       sudo apt-get install --assume-yes --quiet curl make gcc bc rsync
 else
-       yum install --assumeyes gcc make glibc-devel glibc-static bc tar
+       yum install --assumeyes gcc make glibc-devel glibc-static bc tar rsync
 fi
 
 tarball="${TAR_URL##*/}"
@@ -24,3 +24,6 @@ mv "${DL}/${tarball}.tmp" "${DL}/${tarball}"
 cd "$BASE_D"
 tar -xvf "$DL/${tarball}"
 ( cd ftqV110/ftq && make all )
+
+## system changes
+echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
