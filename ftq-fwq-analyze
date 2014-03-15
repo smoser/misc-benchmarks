@@ -27,11 +27,12 @@ for d in "$@"; do
 cd $d
 addpath('$octdir')
 d=dir('$anafiles')
-[data,xb,sd,k]=$anafunc('.',d);
+[data,sd,k,xb]=$anafunc('.',d);
 EOF
 #plotter(data,xb,sd,k,1,100)
+#pause();
    echo "$(date -R): $d [$anafunc/$anafiles]"
-   octave "${TEMP_D}/script" > "$d/octave.out" ||
+   octave --silent "${TEMP_D}/script" | grep '^\w\+=' > "$d/octave.out" ||
       { echo "$d failed"; exit 1; }
 done
 
