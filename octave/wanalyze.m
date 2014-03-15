@@ -1,4 +1,4 @@
-function [data,xb,sd,k] = wanalyze(dirroot,d)
+function [data,sd,k,xb] = wanalyze(dirroot,d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % function [data, xb, sd, k] = wanalyze(dirroot,d)
 % 
@@ -26,12 +26,9 @@ function [data,xb,sd,k] = wanalyze(dirroot,d)
 
 num_files = length(d);
 
-disp('Loading data...');
-
 % iterate through files.  NOTE: ordering is lexicographic, NOT
 % numerical!
 for i=1:num_files
-  disp(d(i).name);
   data(i,:) = load(strcat([dirroot '/' d(i).name]));
 end
 
@@ -45,22 +42,25 @@ minval = min(data(:));
 
 % Remove the work (minval time) to expose the noise and scale the noise
 % as a percentage of the work.
-disp('Computing scaled noise...');
 for i=1:num_files
   data(i,:) = (data(i,:).-minval)./minval;
 end
 
-disp('Computing Mean, Standard Deviation and Kurtosis...');
 for i=1:num_files
+  scaled_maxval = max(data(:));
+  scaled_minval = min(data(:));
   xb(i) = mean(data(i,:));
   sd(i) = std(data(i,:));
   knum(i) = sum((data(i,:)-xb(i)).^4);
   kden(i) = npts*sd(i)^4;
   k(i) = kurtosis(data(i,:));
 end
-  disp('Min, Max='), disp(minval), disp(maxval);
-  disp('Mean='), disp(xb);
-  disp('StdDev='), disp(sd);
-  disp('Knum='), disp(knum);
-  disp('Kden='), disp(kden);
-  disp('kurtosis='), disp(k);
+  printf('Min=%d\n', minval);
+  printf('Max=%d\n', maxval);
+  printf('ScaledMin=%0.4f\n', scaled_minval);
+  printf('ScaledMax=%0.4f\n', scaled_maxval);
+  printf('Mean=%.4f\n', xb);
+  printf('Knum=%.4e\n', knum);
+  printf('StdDev=%.4f\n', sd);
+  printf('Kden=%.4e\n', kden);
+  printf('kurtosis=%.4f\n', k);

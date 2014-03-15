@@ -1,6 +1,6 @@
-function [data,sd,k,sk] = analyze(dirroot,d)
+function [data,sd,k,xbar] = analyze(dirroot,d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% function [data, sd, k, sk] = analyze(dirroot,d)
+% function [data, sd, k, xbar] = analyze(dirroot,d)
 % 
 % arguments:
 %  dirroot : root directory for the data files to read in
@@ -15,7 +15,7 @@ function [data,sd,k,sk] = analyze(dirroot,d)
 %  sd      : raw standard deviation of non-normalized, non-adjusted data.
 %  k       : raw kurtosis value of non-normalized data, no 
 %            adjustment for sample count
-%  sk      : raw skewness value of non-normalized, non-adjusted data.
+%  xbar    : mean value of data
 %
 % example usage (assume data is ftq_X_counts.dat in the directory 
 %                "/home/matt/data").
@@ -27,12 +27,9 @@ function [data,sd,k,sk] = analyze(dirroot,d)
 
 num_files = length(d);
 
-disp('Loading data...');
-
 % iterate through files.  NOTE: ordering is lexicographic, NOT
 % numerical!
 for i=1:num_files
-  disp(d(i).name);
   data(i,:) = load(strcat([dirroot '/' d(i).name]));
 end
 
@@ -47,7 +44,6 @@ npts = length(data(1,:));
 maxval = max(data(:));
 minval = min(data(:));
 
-disp('Computing kurtosis and skewness values...');
 for i=1:num_files
   xbar(i) = mean(data(i,:));
   sd(i) = std(data(i,:));
@@ -56,10 +52,11 @@ for i=1:num_files
   k(i) = kurtosis(data(i,:));
   sk(i) = skewness(data(i,:));
 end
-  disp('Min, Max='), disp(minval), disp(maxval);
-  disp('Mean='), disp(xbar);
-  disp('StdDev='), disp(sd);
-  disp('Knum='), disp(knum);
-  disp('Kden='), disp(kden);
-  disp('kurtosis='), disp(k);
-  disp('skewness='), disp(sk);
+  printf('Min=%d\n', minval);
+  printf('Max=%d\n', maxval);
+  printf('Mean=%.4f\n', xbar);
+  printf('Knum=%.4e\n', knum);
+  printf('StdDev=%.4f\n', sd);
+  printf('Kden=%.4e\n', kden);
+  printf('kurtosis=%.4f\n', k);
+  printf('skewness=%.4f\n', sk);
